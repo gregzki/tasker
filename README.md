@@ -1,2 +1,2 @@
 # tasker
-Simle Java FX app to count time spent on selected task
+Simle Java FX Windows app to count time spent on selected task
