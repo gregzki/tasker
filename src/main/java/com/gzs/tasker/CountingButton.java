@@ -21,8 +21,13 @@ class CountingButton extends ToggleButton {
     VBox editLayout = new VBox();
 
     String text;
-    int timerValue = 0;
+    long timerValue = 0;
     Timeline timeline;
+
+    public CountingButton(String initialText, long timerValue) {
+        this(initialText);
+        this.timerValue = timerValue;
+    }
 
     public CountingButton(String initialText) {
         this.text = initialText;
