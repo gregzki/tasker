@@ -1,6 +1,8 @@
 package com.gzs.tasker;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -10,30 +12,30 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.IOException;
-
 public class TaskerApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
-        Menu addButtonMenu = new ClickableMenu("Add");
+    public void start(Stage stage) {
+        // elements creation
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().add(addButtonMenu);
-
-        ToggleGroup group = new ToggleGroup();
-        ToggleButton button1 = createButton("1", group);
-        ToggleButton button2 = createButton("2", group);
+        Menu addTaskMenuButton = new ClickableMenu("Add");
         VBox box = new VBox(menuBar);
-        box.getChildren().add(button1);
-        box.getChildren().add(button2);
+        ToggleGroup group = new ToggleGroup();
+        Scene scene = new Scene(box, 100, 600);
 
-        addButtonMenu.setOnAction(e -> {
-            ToggleButton button = createButton("new", group);
-            box.getChildren().add(button);
+        // elements assignment
+        menuBar.getMenus().add(addTaskMenuButton);
+
+        // elements actions
+        addTaskMenuButton.setOnAction(e -> {
+            ObservableList<Node> boxChildren = box.getChildren();
+            ToggleButton button = createButton("Task " + boxChildren.size(), group);
+            boxChildren.add(button);
         });
 
-        int width = 100;
-        int height = 600;
-        Scene scene = new Scene(box, width, height);
+        initStage(stage, scene);
+    }
+
+    private static void initStage(Stage stage, Scene scene) {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.setTitle("Tasker");
