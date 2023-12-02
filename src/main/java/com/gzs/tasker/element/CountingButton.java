@@ -1,8 +1,9 @@
-package com.gzs.tasker;
+package com.gzs.tasker.element;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -17,14 +18,14 @@ class CountingButton extends ToggleButton {
     private static final int MIDDLE_BUTTON_ORDINAL = 2;
     private static final int SECONDARY_BUTTON_ORDINAL = 3;
 
-    TextField textEditField = new TextField();
-    VBox editLayout = new VBox();
+    private final TextField textEditField = new TextField();
+    private final VBox editLayout = new VBox();
 
     String text;
-    long timerValue = 0;
+    Long timerValue = 0L;
     Timeline timeline;
 
-    public CountingButton(String initialText, long timerValue) {
+    public CountingButton(String initialText, Long timerValue) {
         this(initialText);
         this.timerValue = timerValue;
     }
@@ -54,7 +55,7 @@ class CountingButton extends ToggleButton {
         resetButton.setOnMouseClicked(e -> {
             stop();
             this.setSelected(false);
-            timerValue = 0;
+            timerValue = 0L;
             updateTextWithCounter();
         });
     }
@@ -68,26 +69,24 @@ class CountingButton extends ToggleButton {
     }
 
     private void initCounter() {
-        timeline = new Timeline(
-                new KeyFrame(
-                        Duration.seconds(1),
-                        ev -> {
-                            timerValue++;
-                            updateTextWithCounter();
-                        }));
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), this::timerTickHandler));
         timeline.setCycleCount(Animation.INDEFINITE);
+    }
+
+    void timerTickHandler(ActionEvent ev) {
+        timerValue++;
+        updateTextWithCounter();
     }
 
     private void initClickActions() {
         setOnMouseClicked(e -> {
             switch (e.getButton().ordinal()) {
                 case PRIMARY_BUTTON_ORDINAL:
-                    getToggleGroup().getToggles()
-                            .forEach(toggle -> {
-                                if (toggle instanceof CountingButton countingButton) {
-                                    toggleCounting(countingButton);
-                                }
-                            });
+                    getToggleGroup().getToggles().forEach(toggle -> {
+                        if (toggle instanceof CountingButton countingButton) {
+                            toggleCounting(countingButton);
+                        }
+                    });
                     break;
                 case MIDDLE_BUTTON_ORDINAL:
                     if (deleteConfirmation(e) && (getParent() instanceof Pane pane)) {
@@ -132,7 +131,7 @@ class CountingButton extends ToggleButton {
         timeline.stop();
     }
 
-    public void updateTextWithCounter() {
+    void updateTextWithCounter() {
         String secondLineText = String.format("%02d:%02d:%02d", (timerValue / 60) / 60, (timerValue / 60) % 60, timerValue % 60);
         setText(text + "\n" + secondLineText);
     }
