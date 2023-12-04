@@ -12,7 +12,7 @@ public class DisplayMode {
     }
     public enum Value {
         TODAY,
-        ALL,
+        FULL,
         RECENT
     }
 }

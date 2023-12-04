@@ -18,22 +18,23 @@ import static com.gzs.tasker.DisplayMode.Value.*;
 public class TaskerApplication extends Application {
 
     private State state;
+
+    private VBox tasksBox;
+
     private final DisplayMode displayMode = new DisplayMode();
     private ToggleGroup tasksGroup = new ToggleGroup();
+
+    private StateFilesHandler stateFilesHandler;
 
     @Override
     public void start(Stage stage) {
         Scene scene = initBaseElements();
 
-        loadSavedState();
+        stateFilesHandler = new StateFilesHandler();
+        state = stateFilesHandler.loadSavedState();
         initTasksDisplay();
 
         initStage(stage, scene);
-    }
-
-    private void loadSavedState() {
-        // TODO: implement reading data from saved JSON file, and saving every n seconds or on close
-        state = new State();
     }
 
     private void initTasksDisplay() {
@@ -41,7 +42,6 @@ public class TaskerApplication extends Application {
     }
 
     private Scene initBaseElements() {
-        VBox tasksBox;
         // elements creation
         MenuBar menuBar = new MenuBar();
         Menu addTaskMenuButton = new ClickableMenu("Add");
@@ -56,10 +56,8 @@ public class TaskerApplication extends Application {
 
         // elements actions
         addTaskMenuButton.setOnAction(ev -> {
-            ObservableList<Node> boxChildren = tasksBox.getChildren();
-            Task task = state.addTask("Task " + boxChildren.size());
-            ToggleButton button = createTaskButton(task);
-            boxChildren.add(button);
+            Task task = state.addTask("Task " + tasksBox.getChildren().size());
+            createTaskButton(task);
         });
         return scene;
     }
@@ -76,18 +74,20 @@ public class TaskerApplication extends Application {
 
         // TODO: make display change to refresh all taskButtons display
         todayOptionItem.setOnAction(ev -> displayMode.setValue(TODAY));
-        allOptionItem.setOnAction(ev -> displayMode.setValue(ALL));
+        allOptionItem.setOnAction(ev -> displayMode.setValue(FULL));
         recentOptionItem.setOnAction(ev -> displayMode.setValue(RECENT));
 
         return timeDisplayMenu;
     }
 
-    private ToggleButton createTaskButton(Task task) {
+    private void createTaskButton(Task task) {
+        ObservableList<Node> boxChildren = tasksBox.getChildren();
+
         ToggleButton button = new TaskButton(task, displayMode);
         button.setPrefWidth(100);
         button.setPrefHeight(100);
         button.setToggleGroup(tasksGroup);
-        return button;
+        boxChildren.add(button);
     }
 
     private void initStage(Stage stage, Scene scene) {
@@ -96,6 +96,9 @@ public class TaskerApplication extends Application {
         stage.setTitle("Tasker");
         stage.initStyle(StageStyle.UTILITY);
         stage.setAlwaysOnTop(true);
+
+        stateFilesHandler.startAutoSave(state);
+        stage.setOnCloseRequest(ev -> stateFilesHandler.finishAutoSave(state));
 
         stage.show();
     }

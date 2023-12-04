@@ -22,19 +22,20 @@ public class TaskButton extends CountingButton {
         this.todayValue = task.computeTodayCount();
         this.nonTodayValue = task.computeAllCount() - todayValue;
         this.timerValue = getCountToDisplay();
+        updateTextWithCounter();
     }
 
     private long getCountToDisplay() {
         return switch (displayMode.getValue()) {
             case TODAY -> todayValue;
-            case ALL -> nonTodayValue + todayValue;
+            case FULL -> nonTodayValue + todayValue;
             case RECENT -> currentRunTimerValue;
         };
     }
 
     @Override
     public void play() {
-        startEpoch = Instant.now().toEpochMilli();
+        startEpoch = Instant.now().getEpochSecond();
         currentRunTimerValue = 0;
         super.play();
     }

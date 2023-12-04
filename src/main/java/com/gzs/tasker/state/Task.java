@@ -2,6 +2,8 @@ package com.gzs.tasker.state;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,15 +12,17 @@ public class Task {
     Map<Long, Long> epochStampedCount = new HashMap<>();
 
     public long computeTodayCount() {
-        return epochStampedCount.values().stream()
+        return epochStampedCount.entrySet().stream()
                 .filter(v -> {
                             LocalDate now = LocalDate.now();
-                            long startEpoch = now.atStartOfDay().toEpochSecond(null);
-                            long endEpoch = now.atTime(LocalTime.MAX).toEpochSecond(null);
-                            return v >= startEpoch && v < endEpoch;
+                            ZoneOffset offset = ZonedDateTime.now().getOffset();
+                            long startEpoch = now.atStartOfDay().toEpochSecond(offset);
+                            long endEpoch = now.atTime(LocalTime.MAX).toEpochSecond(offset);
+                            Long key = v.getKey();
+                            return key >= startEpoch && key < endEpoch;
                         }
                 )
-                .mapToLong(v -> v)
+                .mapToLong(Map.Entry::getValue)
                 .sum();
     }
 
@@ -32,7 +36,7 @@ public class Task {
         return title;
     }
 
-    public void reportTime(long startEpoch, long timerValue) {
-        epochStampedCount.put(startEpoch, timerValue);
+    public void reportTime(long startEpochSeconds, long timerValue) {
+        epochStampedCount.put(startEpochSeconds, timerValue);
     }
 }
