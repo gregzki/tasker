@@ -25,13 +25,8 @@ class CountingButton extends ToggleButton {
     Long timerValue = 0L;
     Timeline timeline;
 
-    public CountingButton(String initialText, Long timerValue) {
-        this(initialText);
-        this.timerValue = timerValue;
-    }
-
     public CountingButton(String initialText) {
-        this.text = initialText;
+        setTitle(initialText);
         updateTextWithCounter();
         setTextAlignment(TextAlignment.CENTER);
 
@@ -50,22 +45,26 @@ class CountingButton extends ToggleButton {
     }
 
     private void initResetButton() {
-        Button resetButton = new Button("Reset timer");
+        Button resetButton = new Button("Reset");
         editLayout.getChildren().add(resetButton);
-        resetButton.setOnMouseClicked(e -> {
-            stop();
-            this.setSelected(false);
-            timerValue = 0L;
-            updateTextWithCounter();
-        });
+        resetButton.setOnMouseClicked(e -> resetCounter());
+    }
+
+    void resetCounter() {
+        stop();
+        this.setSelected(false);
+        timerValue = 0L;
+        setCountingMode();
     }
 
     private void initTextField() {
-        textEditField.setOnAction(actionEvent -> {
-            text = textEditField.getText();
-            setGraphic(null);
-            updateTextWithCounter();
-        });
+        textEditField.setOnAction(ae -> setCountingMode());
+    }
+
+    private void setCountingMode() {
+        setTitle(textEditField.getText());
+        setGraphic(null);
+        updateTextWithCounter();
     }
 
     private void initCounter() {
@@ -89,9 +88,8 @@ class CountingButton extends ToggleButton {
                     });
                     break;
                 case MIDDLE_BUTTON_ORDINAL:
-                    if (deleteConfirmation(e) && (getParent() instanceof Pane pane)) {
-                        this.setToggleGroup(null);
-                        pane.getChildren().remove(this);
+                    if (deleteConfirmation(e)) {
+                        removeThisButton();
                     }
                     break;
                 case SECONDARY_BUTTON_ORDINAL:
@@ -103,6 +101,13 @@ class CountingButton extends ToggleButton {
                     break;
             }
         });
+    }
+
+    void removeThisButton() {
+        if ((getParent() instanceof Pane pane)) {
+            this.setToggleGroup(null);
+            pane.getChildren().remove(this);
+        }
     }
 
     private static void toggleCounting(CountingButton countingButton) {
@@ -134,5 +139,9 @@ class CountingButton extends ToggleButton {
     void updateTextWithCounter() {
         String secondLineText = String.format("%02d:%02d:%02d", (timerValue / 60) / 60, (timerValue / 60) % 60, timerValue % 60);
         setText(text + "\n" + secondLineText);
+    }
+
+    void setTitle(String title) {
+        this.text = title;
     }
 }

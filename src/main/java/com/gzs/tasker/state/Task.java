@@ -39,4 +39,12 @@ public class Task {
     public void reportTime(long startEpochSeconds, long timerValue) {
         epochStampedCount.put(startEpochSeconds, timerValue);
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void clearTimeReport() {
+        epochStampedCount.clear();
+    }
 }

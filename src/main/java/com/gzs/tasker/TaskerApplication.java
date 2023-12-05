@@ -5,8 +5,6 @@ import com.gzs.tasker.element.TaskButton;
 import com.gzs.tasker.state.State;
 import com.gzs.tasker.state.Task;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -72,22 +70,20 @@ public class TaskerApplication extends Application {
         toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, allOptionItem);
         timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem);
 
-        // TODO: make display change to refresh all taskButtons display
         todayOptionItem.setOnAction(ev -> displayMode.setValue(TODAY));
         allOptionItem.setOnAction(ev -> displayMode.setValue(FULL));
-        recentOptionItem.setOnAction(ev -> displayMode.setValue(RECENT));
+        recentOptionItem.setOnAction(ev -> displayMode.setValue(LAST_RUN));
 
         return timeDisplayMenu;
     }
 
     private void createTaskButton(Task task) {
-        ObservableList<Node> boxChildren = tasksBox.getChildren();
-
-        ToggleButton button = new TaskButton(task, displayMode);
+        ToggleButton button = new TaskButton(task);
         button.setPrefWidth(100);
         button.setPrefHeight(100);
         button.setToggleGroup(tasksGroup);
-        boxChildren.add(button);
+        displayMode.registerDisplay((Display) button);
+        tasksBox.getChildren().add(button);
     }
 
     private void initStage(Stage stage, Scene scene) {

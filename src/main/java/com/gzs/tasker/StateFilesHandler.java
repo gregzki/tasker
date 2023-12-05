@@ -28,7 +28,7 @@ public class StateFilesHandler {
         try (InputStream input = TaskerApplication.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
                 LOGGER.log(ERROR, "Unable to read config.properties");
-                System.exit(1);
+                System.exit(991);
             }
             Properties config = new Properties();
             config.load(input);
@@ -38,7 +38,7 @@ public class StateFilesHandler {
             LOGGER.log(INFO, filePath);
         } catch (IOException ex) {
             LOGGER.log(ERROR, ex);
-            System.exit(1);
+            System.exit(999);
         }
     }
 

@@ -1,13 +1,13 @@
 package com.gzs.tasker.element;
 
+import com.gzs.tasker.Display;
 import com.gzs.tasker.DisplayMode;
 import com.gzs.tasker.state.Task;
 import javafx.event.ActionEvent;
 
 import java.time.Instant;
 
-public class TaskButton extends CountingButton {
-    private final DisplayMode displayMode;
+public class TaskButton extends CountingButton implements Display {
     private final Task task;
     private long todayValue;
     private final long nonTodayValue;
@@ -15,21 +15,20 @@ public class TaskButton extends CountingButton {
     private long startEpoch;
     private long currentRunTimerValue;
 
-    public TaskButton(Task task, DisplayMode displayMode) {
+    public TaskButton(Task task) {
         super(task.getTitle());
-        this.displayMode = displayMode;
         this.task = task;
         this.todayValue = task.computeTodayCount();
         this.nonTodayValue = task.computeAllCount() - todayValue;
-        this.timerValue = getCountToDisplay();
+        this.timerValue = getCountToDisplay(DisplayMode.Value.TODAY);
         updateTextWithCounter();
     }
 
-    private long getCountToDisplay() {
-        return switch (displayMode.getValue()) {
+    private long getCountToDisplay(DisplayMode.Value displayMode) {
+        return switch (displayMode) {
             case TODAY -> todayValue;
             case FULL -> nonTodayValue + todayValue;
-            case RECENT -> currentRunTimerValue;
+            case LAST_RUN -> currentRunTimerValue;
         };
     }
 
@@ -42,10 +41,37 @@ public class TaskButton extends CountingButton {
 
     @Override
     void timerTickHandler(ActionEvent ev) {
-        timerValue = getCountToDisplay();
         super.timerTickHandler(ev);
         currentRunTimerValue++;
         todayValue++;
         task.reportTime(startEpoch, currentRunTimerValue);
+    }
+
+    @Override
+    public void refresh(DisplayMode.Value displayMode) {
+        timerValue = getCountToDisplay(displayMode);
+        updateTextWithCounter();
+    }
+
+    @Override
+    void setTitle(String title) {
+        this.text = title;
+        if (task != null) {
+            task.setTitle(title);
+        }
+    }
+
+    @Override
+    void resetCounter() {
+        super.resetCounter();
+        if (task != null) {
+            task.clearTimeReport();
+        }
+    }
+
+    @Override
+    void removeThisButton() {
+        super.removeThisButton();
+        //TODO: fix removing task
     }
 }
