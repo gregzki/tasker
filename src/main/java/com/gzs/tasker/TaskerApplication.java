@@ -2,6 +2,7 @@ package com.gzs.tasker;
 
 import com.gzs.tasker.element.ClickableMenu;
 import com.gzs.tasker.element.TaskButton;
+import com.gzs.tasker.report.ReportWindow;
 import com.gzs.tasker.state.State;
 import com.gzs.tasker.state.Task;
 import javafx.application.Application;
@@ -68,11 +69,15 @@ public class TaskerApplication extends Application {
         RadioMenuItem allOptionItem = new RadioMenuItem("All");
         ToggleGroup toggleGroup = new ToggleGroup();
         toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, allOptionItem);
-        timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem);
+        SeparatorMenuItem separator = new SeparatorMenuItem();
+        MenuItem timeReportItem = new MenuItem("Time Report");
+        timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem, separator, timeReportItem);
 
         todayOptionItem.setOnAction(ev -> displayMode.setValue(TODAY));
         allOptionItem.setOnAction(ev -> displayMode.setValue(FULL));
         recentOptionItem.setOnAction(ev -> displayMode.setValue(LAST_RUN));
+
+        timeReportItem.setOnAction(ev -> new ReportWindow(state));
 
         return timeDisplayMenu;
     }

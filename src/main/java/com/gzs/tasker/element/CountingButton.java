@@ -13,6 +13,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import static com.gzs.tasker.util.TimerFormatter.formatCountValue;
+
 class CountingButton extends ToggleButton {
     private static final int PRIMARY_BUTTON_ORDINAL = 1;
     private static final int MIDDLE_BUTTON_ORDINAL = 2;
@@ -137,7 +139,7 @@ class CountingButton extends ToggleButton {
     }
 
     void updateTextWithCounter() {
-        String secondLineText = String.format("%02d:%02d:%02d", (timerValue / 60) / 60, (timerValue / 60) % 60, timerValue % 60);
+        String secondLineText = formatCountValue(timerValue);
         setText(text + "\n" + secondLineText);
     }
 
