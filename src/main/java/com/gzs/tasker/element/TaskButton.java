@@ -15,12 +15,15 @@ public class TaskButton extends CountingButton implements Display {
     private long startEpoch;
     private long currentRunTimerValue;
 
+    private DisplayMode.Value displayMode;
+
     public TaskButton(Task task) {
         super(task.getTitle());
         this.task = task;
         this.todayValue = task.computeTodayCount();
         this.nonTodayValue = task.computeAllCount() - todayValue;
         this.timerValue = getCountToDisplay(DisplayMode.Value.TODAY);
+        this.startEpoch = Instant.now().getEpochSecond();
         updateTextWithCounter();
     }
 
@@ -49,6 +52,7 @@ public class TaskButton extends CountingButton implements Display {
 
     @Override
     public void refresh(DisplayMode.Value displayMode) {
+        this.displayMode = displayMode;
         timerValue = getCountToDisplay(displayMode);
         updateTextWithCounter();
     }
@@ -73,5 +77,21 @@ public class TaskButton extends CountingButton implements Display {
     void removeThisButton() {
         super.removeThisButton();
         //TODO: fix removing task
+    }
+
+    @Override
+    void addMinutes(int value) {
+        super.addMinutes(value);
+
+        long seconds = value * 60L;
+        long correctionToCurrentRun = 0L;
+        todayValue += seconds;
+        if (todayValue < 0) {
+            correctionToCurrentRun = todayValue;
+            todayValue = 0L;
+        }
+        currentRunTimerValue += seconds - correctionToCurrentRun;
+        refresh(displayMode);
+        task.reportTime(startEpoch, currentRunTimerValue);
     }
 }

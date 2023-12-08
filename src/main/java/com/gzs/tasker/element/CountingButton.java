@@ -4,9 +4,8 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -16,9 +15,8 @@ import javafx.util.Duration;
 import static com.gzs.tasker.util.TimerFormatter.formatCountValue;
 
 class CountingButton extends ToggleButton {
+
     private static final int PRIMARY_BUTTON_ORDINAL = 1;
-    private static final int MIDDLE_BUTTON_ORDINAL = 2;
-    private static final int SECONDARY_BUTTON_ORDINAL = 3;
 
     private final TextField textEditField = new TextField();
     private final VBox editLayout = new VBox();
@@ -33,23 +31,60 @@ class CountingButton extends ToggleButton {
         setTextAlignment(TextAlignment.CENTER);
 
         initEditLayout();
+        initContextMenu();
         initCounter();
 
         initClickActions();
     }
 
     private void initEditLayout() {
+        initTextField();
+
         editLayout.setSpacing(2);
         editLayout.getChildren().add(textEditField);
-
-        initResetButton();
-        initTextField();
     }
 
-    private void initResetButton() {
-        Button resetButton = new Button("Reset");
-        editLayout.getChildren().add(resetButton);
-        resetButton.setOnMouseClicked(e -> resetCounter());
+    private void initTextField() {
+        textEditField.setAlignment(Pos.CENTER);
+        textEditField.setOnAction(ae -> setCountingMode());
+    }
+
+    private void initContextMenu() {
+        final ContextMenu contextMenu = new ContextMenu();
+        MenuItem add5minutes = new MenuItem("+5 minutes");
+        MenuItem sub5minutes = new MenuItem("-5 minutes");
+        MenuItem add1hour = new MenuItem("+1 hour");
+        MenuItem sub1hour = new MenuItem("-1 hour");
+        MenuItem editTitle = new MenuItem("Edit title");
+        MenuItem removeThis = new MenuItem("Remove");
+        contextMenu.getItems().addAll(
+                add5minutes, sub5minutes, add1hour, sub1hour,
+                separator(),
+                editTitle,
+                separator(),
+                removeThis);
+
+        add5minutes.setOnAction(e -> addMinutes(5));
+        sub5minutes.setOnAction(e -> addMinutes(-5));
+        add1hour.setOnAction(e -> addMinutes(60));
+        sub1hour.setOnAction(e -> addMinutes(-60));
+        editTitle.setOnAction(e -> {
+            editLayout.setPrefWidth(this.getWidth() - 20);
+            textEditField.setText(text);
+            setGraphic(editLayout);
+        });
+        removeThis.setOnAction(e -> {
+            if (deleteConfirmation()) {
+                removeThisButton();
+            }
+        });
+
+
+        this.setContextMenu(contextMenu);
+    }
+
+    private static SeparatorMenuItem separator() {
+        return new SeparatorMenuItem();
     }
 
     void resetCounter() {
@@ -57,10 +92,6 @@ class CountingButton extends ToggleButton {
         this.setSelected(false);
         timerValue = 0L;
         setCountingMode();
-    }
-
-    private void initTextField() {
-        textEditField.setOnAction(ae -> setCountingMode());
     }
 
     private void setCountingMode() {
@@ -81,26 +112,12 @@ class CountingButton extends ToggleButton {
 
     private void initClickActions() {
         setOnMouseClicked(e -> {
-            switch (e.getButton().ordinal()) {
-                case PRIMARY_BUTTON_ORDINAL:
-                    getToggleGroup().getToggles().forEach(toggle -> {
-                        if (toggle instanceof CountingButton countingButton) {
-                            toggleCounting(countingButton);
-                        }
-                    });
-                    break;
-                case MIDDLE_BUTTON_ORDINAL:
-                    if (deleteConfirmation(e)) {
-                        removeThisButton();
+            if (e.getButton().ordinal() == PRIMARY_BUTTON_ORDINAL) {
+                getToggleGroup().getToggles().forEach(toggle -> {
+                    if (toggle instanceof CountingButton countingButton) {
+                        toggleCounting(countingButton);
                     }
-                    break;
-                case SECONDARY_BUTTON_ORDINAL:
-                    editLayout.setPrefWidth(this.getWidth() - 20);
-                    textEditField.setText(text);
-                    setGraphic(editLayout);
-                    break;
-                default:
-                    break;
+                });
             }
         });
     }
@@ -120,14 +137,18 @@ class CountingButton extends ToggleButton {
         }
     }
 
-    private boolean deleteConfirmation(MouseEvent e) {
+    private boolean deleteConfirmation() {
         Alert alert = new Alert(Alert.AlertType.WARNING, "Delete?", ButtonType.YES, ButtonType.CANCEL);
-        Node node = (Node) e.getSource();
-        Stage thisStage = (Stage) node.getScene().getWindow();
+        Stage thisStage = (Stage) this.getScene().getWindow();
         alert.initOwner(thisStage);
         alert.showAndWait();
 
         return alert.getResult() == ButtonType.YES;
+    }
+
+    void updateTextWithCounter() {
+        String secondLineText = formatCountValue(timerValue);
+        setText(text + "\n" + secondLineText);
     }
 
     public void play() {
@@ -138,12 +159,16 @@ class CountingButton extends ToggleButton {
         timeline.stop();
     }
 
-    void updateTextWithCounter() {
-        String secondLineText = formatCountValue(timerValue);
-        setText(text + "\n" + secondLineText);
-    }
-
     void setTitle(String title) {
         this.text = title;
+    }
+
+    void addMinutes(int value) {
+        long seconds = value * 60L;
+        timerValue += seconds;
+        if (timerValue < 0) {
+            timerValue = 0L;
+        }
+        updateTextWithCounter();
     }
 }
