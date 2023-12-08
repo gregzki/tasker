@@ -62,21 +62,25 @@ public class TaskerApplication extends Application {
     }
 
     private Menu initTimeDisplayMenu() {
+        // initialization
         Menu timeDisplayMenu = new Menu("Time");
         RadioMenuItem todayOptionItem = new RadioMenuItem("Today");
-        todayOptionItem.setSelected(true);
         RadioMenuItem recentOptionItem = new RadioMenuItem("Recent");
         RadioMenuItem allOptionItem = new RadioMenuItem("All");
         ToggleGroup toggleGroup = new ToggleGroup();
-        toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, allOptionItem);
         SeparatorMenuItem separator = new SeparatorMenuItem();
         MenuItem timeReportItem = new MenuItem("Time Report");
+
+        todayOptionItem.setSelected(true);
+
+        // assignment
+        toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, allOptionItem);
         timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem, separator, timeReportItem);
 
+        // actions
         todayOptionItem.setOnAction(ev -> display.setMode(TODAY));
         allOptionItem.setOnAction(ev -> display.setMode(FULL));
         recentOptionItem.setOnAction(ev -> display.setMode(LAST_RUN));
-
         timeReportItem.setOnAction(ev -> new ReportWindow(state));
 
         return timeDisplayMenu;

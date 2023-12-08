@@ -51,23 +51,26 @@ class CountingButton extends ToggleButton {
 
     private void initContextMenu() {
         final ContextMenu contextMenu = new ContextMenu();
-        MenuItem add5minutes = new MenuItem("+5 minutes");
         MenuItem sub5minutes = new MenuItem("-5 minutes");
-        MenuItem add1hour = new MenuItem("+1 hour");
+        MenuItem add5minutes = new MenuItem("+5 minutes");
         MenuItem sub1hour = new MenuItem("-1 hour");
+        MenuItem add1hour = new MenuItem("+1 hour");
         MenuItem editTitle = new MenuItem("Edit title");
         MenuItem removeThis = new MenuItem("Remove");
         contextMenu.getItems().addAll(
-                add5minutes, sub5minutes, add1hour, sub1hour,
+                sub5minutes,
+                add5minutes,
+                sub1hour,
+                add1hour,
                 separator(),
                 editTitle,
                 separator(),
                 removeThis);
 
-        add5minutes.setOnAction(e -> addMinutes(5));
         sub5minutes.setOnAction(e -> addMinutes(-5));
-        add1hour.setOnAction(e -> addMinutes(60));
+        add5minutes.setOnAction(e -> addMinutes(5));
         sub1hour.setOnAction(e -> addMinutes(-60));
+        add1hour.setOnAction(e -> addMinutes(60));
         editTitle.setOnAction(e -> {
             editLayout.setPrefWidth(this.getWidth() - 20);
             textEditField.setText(text);
