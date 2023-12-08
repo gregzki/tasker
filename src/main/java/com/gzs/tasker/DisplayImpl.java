@@ -3,25 +3,25 @@ package com.gzs.tasker;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DisplayMode {
+public class DisplayImpl {
 
     private final Set<Display> displays = new HashSet<>();
-    private Value value = Value.TODAY;
+    private Mode mode = Mode.TODAY;
 
     public void registerDisplay(Display display) {
         displays.add(display);
     }
 
-    public void setValue(Value value) {
-        this.value = value;
-        displays.forEach(d -> d.refresh(value));
+    public void setMode(Mode mode) {
+        this.mode = mode;
+        displays.forEach(Display::refresh);
     }
 
-    public Value getValue() {
-        return value;
+    public Mode getMode() {
+        return mode;
     }
 
-    public enum Value {
+    public enum Mode {
         TODAY,
         FULL,
         LAST_RUN

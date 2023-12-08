@@ -1,7 +1,7 @@
 package com.gzs.tasker.element;
 
 import com.gzs.tasker.Display;
-import com.gzs.tasker.DisplayMode;
+import com.gzs.tasker.DisplayImpl;
 import com.gzs.tasker.state.Task;
 import javafx.event.ActionEvent;
 
@@ -15,19 +15,20 @@ public class TaskButton extends CountingButton implements Display {
     private long startEpoch;
     private long currentRunTimerValue;
 
-    private DisplayMode.Value displayMode;
+    private final DisplayImpl display;
 
-    public TaskButton(Task task) {
+    public TaskButton(Task task, DisplayImpl display) {
         super(task.getTitle());
         this.task = task;
+        this.display = display;
         this.todayValue = task.computeTodayCount();
         this.nonTodayValue = task.computeAllCount() - todayValue;
-        this.timerValue = getCountToDisplay(DisplayMode.Value.TODAY);
+        this.timerValue = getCountToDisplay(display.getMode());
         this.startEpoch = Instant.now().getEpochSecond();
         updateTextWithCounter();
     }
 
-    private long getCountToDisplay(DisplayMode.Value displayMode) {
+    private long getCountToDisplay(DisplayImpl.Mode displayMode) {
         return switch (displayMode) {
             case TODAY -> todayValue;
             case FULL -> nonTodayValue + todayValue;
@@ -51,9 +52,8 @@ public class TaskButton extends CountingButton implements Display {
     }
 
     @Override
-    public void refresh(DisplayMode.Value displayMode) {
-        this.displayMode = displayMode;
-        timerValue = getCountToDisplay(displayMode);
+    public void refresh() {
+        timerValue = getCountToDisplay(display.getMode());
         updateTextWithCounter();
     }
 
@@ -91,7 +91,7 @@ public class TaskButton extends CountingButton implements Display {
             todayValue = 0L;
         }
         currentRunTimerValue += seconds - correctionToCurrentRun;
-        refresh(displayMode);
+        refresh();
         task.reportTime(startEpoch, currentRunTimerValue);
     }
 }

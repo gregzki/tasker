@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import static com.gzs.tasker.DisplayMode.Value.*;
+import static com.gzs.tasker.DisplayImpl.Mode.*;
 
 public class TaskerApplication extends Application {
 
@@ -20,7 +20,7 @@ public class TaskerApplication extends Application {
 
     private VBox tasksBox;
 
-    private final DisplayMode displayMode = new DisplayMode();
+    private final DisplayImpl display = new DisplayImpl();
     private ToggleGroup tasksGroup = new ToggleGroup();
 
     private StateFilesHandler stateFilesHandler;
@@ -73,9 +73,9 @@ public class TaskerApplication extends Application {
         MenuItem timeReportItem = new MenuItem("Time Report");
         timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem, separator, timeReportItem);
 
-        todayOptionItem.setOnAction(ev -> displayMode.setValue(TODAY));
-        allOptionItem.setOnAction(ev -> displayMode.setValue(FULL));
-        recentOptionItem.setOnAction(ev -> displayMode.setValue(LAST_RUN));
+        todayOptionItem.setOnAction(ev -> display.setMode(TODAY));
+        allOptionItem.setOnAction(ev -> display.setMode(FULL));
+        recentOptionItem.setOnAction(ev -> display.setMode(LAST_RUN));
 
         timeReportItem.setOnAction(ev -> new ReportWindow(state));
 
@@ -83,11 +83,11 @@ public class TaskerApplication extends Application {
     }
 
     private void createTaskButton(Task task) {
-        ToggleButton button = new TaskButton(task);
+        ToggleButton button = new TaskButton(task, display);
         button.setPrefWidth(100);
         button.setPrefHeight(100);
         button.setToggleGroup(tasksGroup);
-        displayMode.registerDisplay((Display) button);
+        display.registerDisplay((Display) button);
         tasksBox.getChildren().add(button);
     }
 
