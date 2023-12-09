@@ -69,6 +69,7 @@ public class StateFilesHandler {
                 LOGGER.log(INFO, "New file created at: " + filePath);
             }
             FileWriter writer = new FileWriter(file);
+            state.cleanUp();
             gson.toJson(state, writer);
             writer.flush();
             writer.close();

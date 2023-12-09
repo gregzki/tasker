@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class Task {
-    String title;
-    Map<Long, Long> epochStampedCount = new HashMap<>();
+    private String title;
+    private final Map<Long, Long> epochStampedCount = new HashMap<>();
 
-    public long computeTodayCount() {
-        return computeDayCount(LocalDate.now());
+    private boolean isArchived = false;
+
+    public Task(String title) {
+        this.title = title;
     }
 
     public long computeDayCount(LocalDate day) {
@@ -37,9 +39,17 @@ public class Task {
                 );
     }
 
-    public long computeAllCount() {
-        return epochStampedCount.values().stream()
-                .mapToLong(v -> v)
+    public long computeMonthCount(YearMonth month) {
+        return epochStampedCount.entrySet().stream()
+                .filter(v -> {
+                            ZoneOffset offset = ZonedDateTime.now().getOffset();
+                            long startEpoch = month.atDay(1).atStartOfDay().toEpochSecond(offset);
+                            long endEpoch = month.atEndOfMonth().atTime(LocalTime.MAX).toEpochSecond(offset);
+                            Long key = v.getKey();
+                            return key >= startEpoch && key < endEpoch;
+                        }
+                )
+                .mapToLong(Map.Entry::getValue)
                 .sum();
     }
 
@@ -68,5 +78,13 @@ public class Task {
                                 .toLocalDate())
                 .distinct()
                 .toList();
+    }
+
+    public boolean isArchived() {
+        return isArchived;
+    }
+
+    public void archive() {
+        isArchived = true;
     }
 }

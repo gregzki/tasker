@@ -28,14 +28,14 @@ public class TaskerApplication extends Application {
         tasksDisplayHandler = new TasksDisplayHandler();
 
         initTasksDisplay();
-        tasksDisplayHandler.sortTasksButtons();
 
         Scene scene = initBaseElements();
         initStage(stage, scene);
     }
 
     void initTasksDisplay() {
-        state.getTasks().forEach(tasksDisplayHandler::createTaskButton);
+        state.getActiveTasks().forEach(tasksDisplayHandler::createTaskButton);
+        tasksDisplayHandler.sortTasksButtons();
     }
 
     private Scene initBaseElements() {
@@ -52,11 +52,13 @@ public class TaskerApplication extends Application {
         menuBar.getMenus().addAll(addTaskMenuButton, timeDisplayMenu);
 
         // elements actions
-        addTaskMenuButton.setOnAction(ev -> {
-            Task task = state.addTask("Task " + tasksDisplayHandler.getTasksBox().getChildren().size());
-            tasksDisplayHandler.createTaskButton(task);
-        });
+        addTaskMenuButton.setOnAction(ev -> createTask());
         return scene;
+    }
+
+    private void createTask() {
+        Task task = state.addTask("Task " + tasksDisplayHandler.getTasksBox().getChildren().size());
+        tasksDisplayHandler.createTaskButton(task);
     }
 
     private Menu initTimeDisplayMenu() {
@@ -64,7 +66,7 @@ public class TaskerApplication extends Application {
         Menu timeDisplayMenu = new Menu("Time");
         RadioMenuItem todayOptionItem = new RadioMenuItem("Today");
         RadioMenuItem recentOptionItem = new RadioMenuItem("Recent");
-        RadioMenuItem allOptionItem = new RadioMenuItem("All");
+        RadioMenuItem monthOptionItem = new RadioMenuItem("Month");
         ToggleGroup toggleGroup = new ToggleGroup();
         SeparatorMenuItem separator = new SeparatorMenuItem();
         MenuItem timeReportItem = new MenuItem("Time Report");
@@ -72,13 +74,14 @@ public class TaskerApplication extends Application {
         todayOptionItem.setSelected(true);
 
         // assignment
-        toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, allOptionItem);
-        timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem, separator, timeReportItem);
+        toggleGroup.getToggles().addAll(todayOptionItem, recentOptionItem, monthOptionItem);
+        timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, monthOptionItem, separator, timeReportItem);
 
         // actions
         todayOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(TODAY));
-        allOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(FULL));
+        monthOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(MONTH));
         recentOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(LAST_RUN));
+
         timeReportItem.setOnAction(ev -> new ReportWindow(state));
 
         return timeDisplayMenu;

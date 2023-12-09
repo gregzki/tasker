@@ -34,8 +34,9 @@ public class TasksDisplayHandler {
         sortTasksButtons();
     }
 
-    public void removeTask(TaskButton button) {
-        tasksBox.getChildren().remove(button);
+    public void removeTask(TaskButton taskButton) {
+        taskButton.archiveTask();
+        tasksBox.getChildren().remove(taskButton);
         sortTasksButtons();
     }
 
@@ -69,7 +70,7 @@ public class TasksDisplayHandler {
 
     public enum Mode {
         TODAY,
-        FULL,
+        MONTH,
         LAST_RUN
     }
 }

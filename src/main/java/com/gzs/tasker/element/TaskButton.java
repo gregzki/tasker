@@ -6,33 +6,44 @@ import com.gzs.tasker.state.Task;
 import javafx.event.ActionEvent;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class TaskButton extends CountingButton implements Display {
     private final Task task;
-    private long todayValue;
-    private final long nonTodayValue;
+    private LocalDate dayValueDate = LocalDate.now();
+    private long dayValue;
+    private long otherDaysOfMonthValue;
 
     private long startEpoch;
     private long currentRunTimerValue;
 
-
     private final TasksDisplayHandler display;
+
 
     public TaskButton(Task task, TasksDisplayHandler tasksDisplayHandler) {
         super(task.getTitle());
         this.task = task;
+        updateDayValues();
         this.display = tasksDisplayHandler;
-        this.todayValue = task.computeTodayCount();
-        this.nonTodayValue = task.computeAllCount() - todayValue;
         this.timerValue = getCountToDisplay(tasksDisplayHandler.getMode());
         this.startEpoch = Instant.now().getEpochSecond();
         updateTextWithCounter();
     }
 
+    private void updateDayValues() {
+        if (!LocalDate.now().isEqual(dayValueDate)) {
+            dayValueDate = LocalDate.now();
+            this.dayValue = task.computeDayCount(dayValueDate);
+            this.otherDaysOfMonthValue = task.computeMonthCount(YearMonth.from(dayValueDate)) - dayValue;
+        }
+    }
+
     private long getCountToDisplay(TasksDisplayHandler.Mode displayMode) {
+        updateDayValues();
         return switch (displayMode) {
-            case TODAY -> todayValue;
-            case FULL -> nonTodayValue + todayValue;
+            case TODAY -> dayValue;
+            case MONTH -> otherDaysOfMonthValue + dayValue;
             case LAST_RUN -> currentRunTimerValue;
         };
     }
@@ -48,7 +59,7 @@ public class TaskButton extends CountingButton implements Display {
     void timerTickHandler(ActionEvent ev) {
         super.timerTickHandler(ev);
         currentRunTimerValue++;
-        todayValue++;
+        dayValue++;
         task.reportTime(startEpoch, currentRunTimerValue);
     }
 
@@ -87,13 +98,17 @@ public class TaskButton extends CountingButton implements Display {
 
         long seconds = value * 60L;
         long correctionToCurrentRun = 0L;
-        todayValue += seconds;
-        if (todayValue < 0) {
-            correctionToCurrentRun = todayValue;
-            todayValue = 0L;
+        dayValue += seconds;
+        if (dayValue < 0) {
+            correctionToCurrentRun = dayValue;
+            dayValue = 0L;
         }
         currentRunTimerValue += seconds - correctionToCurrentRun;
         refresh();
         task.reportTime(startEpoch, currentRunTimerValue);
+    }
+
+    public void archiveTask() {
+        task.archive();
     }
 }
