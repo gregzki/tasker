@@ -1,7 +1,7 @@
 package com.gzs.tasker.element;
 
 import com.gzs.tasker.Display;
-import com.gzs.tasker.DisplayImpl;
+import com.gzs.tasker.TasksDisplayHandler;
 import com.gzs.tasker.state.Task;
 import javafx.event.ActionEvent;
 
@@ -15,20 +15,21 @@ public class TaskButton extends CountingButton implements Display {
     private long startEpoch;
     private long currentRunTimerValue;
 
-    private final DisplayImpl display;
 
-    public TaskButton(Task task, DisplayImpl display) {
+    private final TasksDisplayHandler display;
+
+    public TaskButton(Task task, TasksDisplayHandler tasksDisplayHandler) {
         super(task.getTitle());
         this.task = task;
-        this.display = display;
+        this.display = tasksDisplayHandler;
         this.todayValue = task.computeTodayCount();
         this.nonTodayValue = task.computeAllCount() - todayValue;
-        this.timerValue = getCountToDisplay(display.getMode());
+        this.timerValue = getCountToDisplay(tasksDisplayHandler.getMode());
         this.startEpoch = Instant.now().getEpochSecond();
         updateTextWithCounter();
     }
 
-    private long getCountToDisplay(DisplayImpl.Mode displayMode) {
+    private long getCountToDisplay(TasksDisplayHandler.Mode displayMode) {
         return switch (displayMode) {
             case TODAY -> todayValue;
             case FULL -> nonTodayValue + todayValue;
@@ -58,10 +59,11 @@ public class TaskButton extends CountingButton implements Display {
     }
 
     @Override
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.text = title;
         if (task != null) {
             task.setTitle(title);
+            display.sortTasksButtons();
         }
     }
 
@@ -76,7 +78,7 @@ public class TaskButton extends CountingButton implements Display {
     @Override
     void removeThisButton() {
         super.removeThisButton();
-        //TODO: fix removing task
+        display.removeTask(this);
     }
 
     @Override

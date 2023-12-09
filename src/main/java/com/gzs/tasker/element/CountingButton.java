@@ -162,8 +162,12 @@ class CountingButton extends ToggleButton {
         timeline.stop();
     }
 
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.text = title;
+    }
+
+    public String getTitle() {
+        return this.text;
     }
 
     void addMinutes(int value) {

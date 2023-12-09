@@ -1,7 +1,6 @@
 package com.gzs.tasker;
 
 import com.gzs.tasker.element.ClickableMenu;
-import com.gzs.tasker.element.TaskButton;
 import com.gzs.tasker.report.ReportWindow;
 import com.gzs.tasker.state.State;
 import com.gzs.tasker.state.Task;
@@ -12,32 +11,31 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import static com.gzs.tasker.DisplayImpl.Mode.*;
+import static com.gzs.tasker.TasksDisplayHandler.Mode.*;
 
 public class TaskerApplication extends Application {
 
     private State state;
 
-    private VBox tasksBox;
-
-    private final DisplayImpl display = new DisplayImpl();
-    private ToggleGroup tasksGroup = new ToggleGroup();
-
     private StateFilesHandler stateFilesHandler;
+    private TasksDisplayHandler tasksDisplayHandler;
 
     @Override
     public void start(Stage stage) {
-        Scene scene = initBaseElements();
-
         stateFilesHandler = new StateFilesHandler();
         state = stateFilesHandler.loadSavedState();
-        initTasksDisplay();
 
+        tasksDisplayHandler = new TasksDisplayHandler();
+
+        initTasksDisplay();
+        tasksDisplayHandler.sortTasksButtons();
+
+        Scene scene = initBaseElements();
         initStage(stage, scene);
     }
 
-    private void initTasksDisplay() {
-        state.getTasks().forEach(this::createTaskButton);
+    void initTasksDisplay() {
+        state.getTasks().forEach(tasksDisplayHandler::createTaskButton);
     }
 
     private Scene initBaseElements() {
@@ -46,17 +44,17 @@ public class TaskerApplication extends Application {
         Menu addTaskMenuButton = new ClickableMenu("Add");
         Menu timeDisplayMenu = initTimeDisplayMenu();
 
-        tasksBox = new VBox(menuBar);
-        tasksGroup = new ToggleGroup();
-        Scene scene = new Scene(tasksBox, 100, 600);
+        VBox panelBox = new VBox();
+        panelBox.getChildren().addAll(menuBar, tasksDisplayHandler.getTasksBox());
+        Scene scene = new Scene(panelBox, 100, 600);
 
         // elements assignment
         menuBar.getMenus().addAll(addTaskMenuButton, timeDisplayMenu);
 
         // elements actions
         addTaskMenuButton.setOnAction(ev -> {
-            Task task = state.addTask("Task " + tasksBox.getChildren().size());
-            createTaskButton(task);
+            Task task = state.addTask("Task " + tasksDisplayHandler.getTasksBox().getChildren().size());
+            tasksDisplayHandler.createTaskButton(task);
         });
         return scene;
     }
@@ -78,21 +76,12 @@ public class TaskerApplication extends Application {
         timeDisplayMenu.getItems().addAll(todayOptionItem, recentOptionItem, allOptionItem, separator, timeReportItem);
 
         // actions
-        todayOptionItem.setOnAction(ev -> display.setMode(TODAY));
-        allOptionItem.setOnAction(ev -> display.setMode(FULL));
-        recentOptionItem.setOnAction(ev -> display.setMode(LAST_RUN));
+        todayOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(TODAY));
+        allOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(FULL));
+        recentOptionItem.setOnAction(ev -> tasksDisplayHandler.setMode(LAST_RUN));
         timeReportItem.setOnAction(ev -> new ReportWindow(state));
 
         return timeDisplayMenu;
-    }
-
-    private void createTaskButton(Task task) {
-        ToggleButton button = new TaskButton(task, display);
-        button.setPrefWidth(100);
-        button.setPrefHeight(100);
-        button.setToggleGroup(tasksGroup);
-        display.registerDisplay((Display) button);
-        tasksBox.getChildren().add(button);
     }
 
     private void initStage(Stage stage, Scene scene) {
