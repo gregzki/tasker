@@ -11,7 +11,7 @@ import java.time.YearMonth;
 
 public class TaskButton extends CountingButton implements Display {
     private final Task task;
-    private LocalDate dayValueDate = LocalDate.now();
+    private LocalDate dayValueDate;
     private long dayValue;
     private long otherDaysOfMonthValue;
 
@@ -32,7 +32,7 @@ public class TaskButton extends CountingButton implements Display {
     }
 
     private void updateDayValues() {
-        if (!LocalDate.now().isEqual(dayValueDate)) {
+        if (dayValueDate == null || !LocalDate.now().isEqual(dayValueDate)) {
             dayValueDate = LocalDate.now();
             this.dayValue = task.computeDayCount(dayValueDate);
             this.otherDaysOfMonthValue = task.computeMonthCount(YearMonth.from(dayValueDate)) - dayValue;

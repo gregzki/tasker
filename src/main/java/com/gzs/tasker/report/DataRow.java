@@ -4,16 +4,14 @@ public class DataRow {
     private String day;
     private String task;
     private String time;
-    private long switchCount;
 
     public DataRow() {
     }
 
-    public DataRow(String day, String task, String time, long switchCount) {
+    public DataRow(String day, String task, String time) {
         this.day = day;
         this.task = task;
         this.time = time;
-        this.switchCount = switchCount;
     }
 
     public String getDay() {
@@ -38,13 +36,5 @@ public class DataRow {
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public long getSwitchCount() {
-        return switchCount;
-    }
-
-    public void setSwitchCount(long switchCount) {
-        this.switchCount = switchCount;
     }
 }

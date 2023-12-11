@@ -35,7 +35,6 @@ public class TaskerApplication extends Application {
 
     void initTasksDisplay() {
         state.getActiveTasks().forEach(tasksDisplayHandler::createTaskButton);
-        tasksDisplayHandler.sortTasksButtons();
     }
 
     private Scene initBaseElements() {

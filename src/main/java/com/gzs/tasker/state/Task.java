@@ -22,11 +22,6 @@ public class Task {
                 .sum();
     }
 
-    public long computeDaySwitchCount(LocalDate day) {
-        return getDayStream(day)
-                .count();
-    }
-
     private Stream<Map.Entry<Long, Long>> getDayStream(LocalDate day) {
         return epochStampedCount.entrySet().stream()
                 .filter(v -> {
@@ -34,7 +29,7 @@ public class Task {
                             long startEpoch = day.atStartOfDay().toEpochSecond(offset);
                             long endEpoch = day.atTime(LocalTime.MAX).toEpochSecond(offset);
                             Long key = v.getKey();
-                            return key >= startEpoch && key < endEpoch;
+                            return key >= startEpoch && key <= endEpoch;
                         }
                 );
     }
@@ -61,8 +56,8 @@ public class Task {
         this.title = title;
     }
 
-    public void reportTime(long startEpochSeconds, long timerValue) {
-        epochStampedCount.put(startEpochSeconds, timerValue);
+    public void reportTime(long startDateEpochSeconds, long timeInSeconds) {
+        epochStampedCount.put(startDateEpochSeconds, timeInSeconds);
     }
 
     public void clearTimeReport() {
@@ -76,6 +71,7 @@ public class Task {
                         LocalDateTime
                                 .ofEpochSecond(epoch, 0, offset)
                                 .toLocalDate())
+                .sorted()
                 .distinct()
                 .toList();
     }

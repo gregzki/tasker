@@ -30,8 +30,8 @@ public class ReportWindow {
                         .map(day -> new DataRow(
                                 day.toString(),
                                 task.getTitle(),
-                                formatCountValue(task.computeDayCount(day)),
-                                task.computeDaySwitchCount(day))))
+                                formatCountValue(task.computeDayCount(day)))
+                        ))
                 .toList();
     }
 
@@ -44,16 +44,15 @@ public class ReportWindow {
         column2.setCellValueFactory(new PropertyValueFactory<>("task"));
         TableColumn<DataRow, String> column3 = new TableColumn<>("Time Reported");
         column3.setCellValueFactory(new PropertyValueFactory<>("time"));
-        TableColumn<DataRow, String> column4 = new TableColumn<>("Switch Count");
-        column4.setCellValueFactory(new PropertyValueFactory<>("switchCount"));
 
-        tableView.getColumns().addAll(column1, column2, column3, column4);
-        tableView.getSortOrder().addAll(column1);
+        tableView.getColumns().addAll(column1, column2, column3);
+        tableView.getSortOrder().addAll(column1, column2);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // data
         tableView.getItems().addAll(rows);
 
+        column1.setSortType(TableColumn.SortType.DESCENDING);
         tableView.sort();
 
         VBox.setVgrow(tableView, Priority.ALWAYS);

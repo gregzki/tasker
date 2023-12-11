@@ -37,7 +37,6 @@ public class TasksDisplayHandler {
     public void removeTask(TaskButton taskButton) {
         taskButton.archiveTask();
         tasksBox.getChildren().remove(taskButton);
-        sortTasksButtons();
     }
 
     public void sortTasksButtons() {

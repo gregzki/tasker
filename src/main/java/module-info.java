@@ -8,6 +8,7 @@ module com.gzs.tasker {
     exports com.gzs.tasker;
     exports com.gzs.tasker.element;
     exports com.gzs.tasker.state;
-    opens com.gzs.tasker.state to com.google.gson;
     exports com.gzs.tasker.report;
+
+    opens com.gzs.tasker.state to com.google.gson;
 }
