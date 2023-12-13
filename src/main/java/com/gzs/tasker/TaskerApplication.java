@@ -4,6 +4,7 @@ import com.gzs.tasker.element.ClickableMenu;
 import com.gzs.tasker.report.ReportWindow;
 import com.gzs.tasker.state.State;
 import com.gzs.tasker.state.Task;
+import com.gzs.tasker.trayicon.TaskerTrayIcon;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -31,6 +32,9 @@ public class TaskerApplication extends Application {
 
         Scene scene = initBaseElements();
         initStage(stage, scene);
+
+        TaskerTrayIcon trayIcon = new TaskerTrayIcon();
+        trayIcon.initTrayIcon(() -> showStage(stage));
     }
 
     void initTasksDisplay() {
@@ -95,8 +99,11 @@ public class TaskerApplication extends Application {
 
         stateFilesHandler.startAutoSave(state);
         stage.setOnCloseRequest(ev -> stateFilesHandler.finishAutoSave(state));
+    }
 
+    private void showStage(Stage stage) {
         stage.show();
+        stage.toFront();
     }
 
     public static void main(String[] args) {
