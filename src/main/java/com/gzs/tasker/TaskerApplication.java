@@ -6,6 +6,7 @@ import com.gzs.tasker.state.State;
 import com.gzs.tasker.state.Task;
 import com.gzs.tasker.trayicon.TaskerTrayIcon;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -23,6 +24,7 @@ public class TaskerApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        Platform.setImplicitExit(false);
         stateFilesHandler = new StateFilesHandler();
         state = stateFilesHandler.loadSavedState();
 

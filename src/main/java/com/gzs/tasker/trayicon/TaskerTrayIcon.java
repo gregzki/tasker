@@ -41,9 +41,9 @@ public class TaskerTrayIcon {
         }
     }
 
-    private PopupMenu getPopupMenu(Runnable toRun, SystemTray tray) {
+    private PopupMenu getPopupMenu(Runnable openAction, SystemTray tray) {
         MenuItem openItem = new MenuItem("Open");
-        openItem.addActionListener(event -> Platform.runLater(toRun));
+        openItem.addActionListener(event -> Platform.runLater(openAction));
 
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener(event -> {
