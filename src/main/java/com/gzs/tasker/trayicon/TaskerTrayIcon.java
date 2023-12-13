@@ -13,7 +13,7 @@ public class TaskerTrayIcon {
 
     private TrayIcon trayIcon;
 
-    public void initTrayIcon(Runnable toRun) {
+    public void initTrayIcon(Runnable openAction, Runnable closeAction) {
         try {
             java.awt.Toolkit.getDefaultToolkit();
 
@@ -31,8 +31,8 @@ public class TaskerTrayIcon {
             trayIcon = new TrayIcon(icon);
 
             // double-click
-            trayIcon.addActionListener(event -> Platform.runLater(toRun));
-            final PopupMenu popup = getPopupMenu(toRun, tray);
+            trayIcon.addActionListener(event -> Platform.runLater(openAction));
+            final PopupMenu popup = getPopupMenu(openAction, closeAction, tray);
             trayIcon.setPopupMenu(popup);
 
             tray.add(trayIcon);
@@ -41,12 +41,13 @@ public class TaskerTrayIcon {
         }
     }
 
-    private PopupMenu getPopupMenu(Runnable openAction, SystemTray tray) {
+    private PopupMenu getPopupMenu(Runnable openAction, Runnable closeAction, SystemTray tray) {
         MenuItem openItem = new MenuItem("Open");
         openItem.addActionListener(event -> Platform.runLater(openAction));
 
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener(event -> {
+            closeAction.run();
             Platform.exit();
             tray.remove(trayIcon);
         });

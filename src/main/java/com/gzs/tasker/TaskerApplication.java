@@ -36,7 +36,9 @@ public class TaskerApplication extends Application {
         initStage(stage, scene);
 
         TaskerTrayIcon trayIcon = new TaskerTrayIcon();
-        trayIcon.initTrayIcon(() -> showStage(stage));
+        trayIcon.initTrayIcon(
+                () -> showStage(stage),
+                () -> stateFilesHandler.finishAutoSave(state));
     }
 
     void initTasksDisplay() {
@@ -99,11 +101,11 @@ public class TaskerApplication extends Application {
         stage.initStyle(StageStyle.UTILITY);
         stage.setAlwaysOnTop(true);
 
-        stateFilesHandler.startAutoSave(state);
         stage.setOnCloseRequest(ev -> stateFilesHandler.finishAutoSave(state));
     }
 
     private void showStage(Stage stage) {
+        stateFilesHandler.startAutoSave(state);
         stage.show();
         stage.toFront();
     }
