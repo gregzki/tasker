@@ -38,7 +38,10 @@ public class TaskerApplication extends Application {
         TaskerTrayIcon trayIcon = new TaskerTrayIcon();
         trayIcon.initTrayIcon(
                 () -> showStage(stage),
-                () -> stateFilesHandler.finishAutoSave(state));
+                () -> {
+                    tasksDisplayHandler.stopDayChangeRefresh();
+                    stateFilesHandler.finishAutoSave(state);
+                });
     }
 
     void initTasksDisplay() {
