@@ -104,7 +104,7 @@ public class TaskerApplication extends Application {
         stage.initStyle(StageStyle.UTILITY);
         stage.setAlwaysOnTop(true);
 
-        stage.setOnCloseRequest(ev -> stateFilesHandler.finishAutoSave(state));
+        stage.setOnCloseRequest(ev -> stateFilesHandler.saveState(state));
     }
 
     private void showStage(Stage stage) {
