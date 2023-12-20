@@ -13,9 +13,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import static com.gzs.tasker.TasksDisplayHandler.Mode.*;
 
 public class TaskerApplication extends Application {
+    private static final Logger LOGGER = Logger.getLogger(TaskerApplication.class.getName());
 
     private State state;
 
@@ -24,6 +28,7 @@ public class TaskerApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        LOGGER.info("App start");
         Platform.setImplicitExit(false);
         stateFilesHandler = new StateFilesHandler();
         state = stateFilesHandler.loadSavedState();
@@ -114,6 +119,13 @@ public class TaskerApplication extends Application {
     }
 
     public static void main(String[] args) {
+        try {
+            LogManager.getLogManager().readConfiguration(TaskerApplication.class.getClassLoader().getResourceAsStream("logging.properties"));
+            // Rest of your application code
+        } catch (Exception e) {
+            Logger.getAnonymousLogger().warning("Cannot load logging properties from resources");
+        }
+
         launch();
     }
 }

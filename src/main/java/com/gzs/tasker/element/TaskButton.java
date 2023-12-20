@@ -3,13 +3,18 @@ package com.gzs.tasker.element;
 import com.gzs.tasker.Display;
 import com.gzs.tasker.TasksDisplayHandler;
 import com.gzs.tasker.state.Task;
+import com.gzs.tasker.util.CurrentZone;
 import javafx.event.ActionEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TaskButton extends CountingButton implements Display {
+    private static final Logger LOGGER = Logger.getLogger(TaskButton.class.getName());
     private final Task task;
     private LocalDate dayValueDate;
     private long dayValue;
@@ -20,28 +25,29 @@ public class TaskButton extends CountingButton implements Display {
 
     private final TasksDisplayHandler display;
 
-
     public TaskButton(Task task, TasksDisplayHandler tasksDisplayHandler) {
         super(task.getTitle());
         this.task = task;
-        updateDayValues();
-        this.display = tasksDisplayHandler;
-        this.timerValue = getCountToDisplay(tasksDisplayHandler.getMode());
-        this.startEpoch = Instant.now().getEpochSecond();
+        display = tasksDisplayHandler;
+        timerValue = getCountToDisplay();
+        startEpoch = Instant.now().getEpochSecond();
         updateTextWithCounter();
     }
 
     private void updateDayValues() {
+        LOGGER.log(Level.FINE, "Update values {0} {1} {2}", new Object[]{dayValueDate, dayValue, otherDaysOfMonthValue});
         if (dayValueDate == null || !LocalDate.now().isEqual(dayValueDate)) {
             dayValueDate = LocalDate.now();
-            this.dayValue = task.computeDayCount(dayValueDate);
-            this.otherDaysOfMonthValue = task.computeMonthCount(YearMonth.from(dayValueDate)) - dayValue;
+            LOGGER.log(Level.FINE, "Updated to {0} {1} {2}", new Object[]{dayValueDate, dayValue, otherDaysOfMonthValue});
+            dayValue = task.computeDayCount(dayValueDate);
+            otherDaysOfMonthValue = task.computeMonthCount(YearMonth.from(dayValueDate)) - dayValue;
+            currentRunTimerValue = 0L;
         }
     }
 
-    private long getCountToDisplay(TasksDisplayHandler.Mode displayMode) {
+    private long getCountToDisplay() {
         updateDayValues();
-        return switch (displayMode) {
+        return switch (display.getMode()) {
             case TODAY -> dayValue;
             case MONTH -> otherDaysOfMonthValue + dayValue;
             case LAST_RUN -> currentRunTimerValue;
@@ -65,7 +71,7 @@ public class TaskButton extends CountingButton implements Display {
 
     @Override
     public void refresh() {
-        timerValue = getCountToDisplay(display.getMode());
+        timerValue = getCountToDisplay();
         updateTextWithCounter();
     }
 
@@ -94,6 +100,7 @@ public class TaskButton extends CountingButton implements Display {
 
     @Override
     void addMinutes(int value) {
+        checkDayChangeUpdate();
         super.addMinutes(value);
 
         long seconds = value * 60L;
@@ -105,7 +112,16 @@ public class TaskButton extends CountingButton implements Display {
         }
         currentRunTimerValue += seconds - correctionToCurrentRun;
         refresh();
+
         task.reportTime(startEpoch, currentRunTimerValue);
+    }
+
+    private void checkDayChangeUpdate() {
+        LocalDate startDate = LocalDateTime.ofEpochSecond(startEpoch, 0, CurrentZone.offset())
+                .toLocalDate();
+        if (startDate.isBefore(LocalDate.now())) {
+            startEpoch = Instant.now().getEpochSecond();
+        }
     }
 
     public void archiveTask() {

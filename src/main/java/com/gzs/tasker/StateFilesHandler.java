@@ -8,13 +8,12 @@ import java.io.*;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.INFO;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StateFilesHandler {
+    private static final Logger LOGGER = Logger.getLogger(StateFilesHandler.class.getName());
 
-    private static final System.Logger LOGGER = System.getLogger("Tasker");
     private String filePath;
 
     public static final int AUTO_SAVE_TIME = 5000;
@@ -27,17 +26,17 @@ public class StateFilesHandler {
     private void readConfigProperties() {
         try (InputStream input = TaskerApplication.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
-                LOGGER.log(ERROR, "Unable to read config.properties");
+                LOGGER.severe("Unable to read config.properties");
                 System.exit(991);
             }
             Properties config = new Properties();
             config.load(input);
 
-            filePath = (String) config.getOrDefault("tasks-json-file",
+            filePath = (String) config.getOrDefault("tasks.file.path",
                     System.getProperty("user.dir") + "/tasks.json");
-            LOGGER.log(INFO, filePath);
+            LOGGER.fine(filePath);
         } catch (IOException ex) {
-            LOGGER.log(ERROR, ex);
+            LOGGER.log(Level.SEVERE, "", ex);
             System.exit(999);
         }
     }
@@ -47,13 +46,13 @@ public class StateFilesHandler {
         try {
             File file = new File(filePath);
             if (file.createNewFile()) {
-                LOGGER.log(INFO, "New file created at: " + filePath);
+                LOGGER.log(Level.INFO, "New file created in :{0}", filePath);
             }
             Gson gson = new Gson();
             JsonReader reader = new JsonReader(new FileReader(file));
             state = gson.fromJson(reader, State.class);
-        } catch (IOException e) {
-            LOGGER.log(ERROR, e);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "", ex);
         }
         if (state != null) {
             return state;
@@ -66,15 +65,15 @@ public class StateFilesHandler {
         try {
             File file = new File(filePath);
             if (file.createNewFile()) {
-                LOGGER.log(INFO, "New file created at: " + filePath);
+                LOGGER.log(Level.INFO, "New file created in :{0}", filePath);
             }
             FileWriter writer = new FileWriter(file);
             state.cleanUp();
             gson.toJson(state, writer);
             writer.flush();
             writer.close();
-        } catch (IOException e) {
-            LOGGER.log(ERROR, e);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "", ex);
         }
     }
 

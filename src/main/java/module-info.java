@@ -5,6 +5,7 @@ module com.gzs.tasker {
     requires com.dlsc.formsfx;
     requires com.google.gson;
     requires java.desktop;
+    requires java.logging;
 
     exports com.gzs.tasker;
     exports com.gzs.tasker.element;

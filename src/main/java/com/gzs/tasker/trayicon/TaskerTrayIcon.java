@@ -3,13 +3,11 @@ package com.gzs.tasker.trayicon;
 import javafx.application.Platform;
 
 import java.awt.*;
-
-import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.WARNING;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TaskerTrayIcon {
-
-    private static final System.Logger LOGGER = System.getLogger("TaskerTrayIcon");
+    private static final Logger LOGGER = Logger.getLogger(TaskerTrayIcon.class.getName());
 
     private TrayIcon trayIcon;
 
@@ -18,14 +16,14 @@ public class TaskerTrayIcon {
             java.awt.Toolkit.getDefaultToolkit();
 
             if (!SystemTray.isSupported()) {
-                LOGGER.log(WARNING, "No system tray support!");
+                LOGGER.warning("No system tray support!");
                 return;
             }
 
             SystemTray tray = SystemTray.getSystemTray();
             Image icon = MultiResolutionIcon.createMultiResolutionIcon();
             if (icon == null) {
-                LOGGER.log(ERROR, "Could not load icons for tray!");
+                LOGGER.severe("Could not load icons for tray!");
                 return;
             }
             trayIcon = new TrayIcon(icon);
@@ -36,8 +34,8 @@ public class TaskerTrayIcon {
             trayIcon.setPopupMenu(popup);
 
             tray.add(trayIcon);
-        } catch (Exception e) {
-            LOGGER.log(ERROR, e);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE,"", ex);
         }
     }
 

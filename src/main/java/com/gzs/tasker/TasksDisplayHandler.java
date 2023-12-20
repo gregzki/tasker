@@ -15,9 +15,11 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TasksDisplayHandler {
-
+    private static final Logger LOGGER = Logger.getLogger(TasksDisplayHandler.class.getName());
     private final VBox tasksBox;
 
     private final ToggleGroup tasksGroup = new ToggleGroup();
@@ -38,11 +40,19 @@ public class TasksDisplayHandler {
         LocalDateTime nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay();
         // it's enough to schedule refresh to be between 0-1 in the night.
         long initialDelay = Duration.between(now, nextMidnight).toHours() + 1;
+        long recurrence = TimeUnit.DAYS.toHours(1);
 
-        scheduler.scheduleAtFixedRate(() ->
-                        displays.forEach(Display::refresh),
+        LOGGER.log(Level.FINE, "Display Refresh Initialization delay:{0} recurrence:{1}", new Object[]{initialDelay, recurrence});
+
+        recurrence = 1;
+        initialDelay = 1;
+
+        scheduler.scheduleAtFixedRate(() -> {
+                    displays.forEach(Display::refresh);
+                    LOGGER.fine("Display Refresh Triggered");
+                },
                 initialDelay,
-                TimeUnit.DAYS.toHours(1),
+                recurrence,
                 TimeUnit.HOURS);
     }
 

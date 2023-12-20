@@ -46,7 +46,7 @@ class CountingButton extends ToggleButton {
 
     private void initTextField() {
         textEditField.setAlignment(Pos.CENTER);
-        textEditField.setOnAction(ae -> setCountingMode());
+        textEditField.setOnAction(ae -> setButtonTitle());
     }
 
     private void initContextMenu() {
@@ -103,10 +103,10 @@ class CountingButton extends ToggleButton {
         stop();
         this.setSelected(false);
         timerValue = 0L;
-        setCountingMode();
+        setButtonTitle();
     }
 
-    private void setCountingMode() {
+    private void setButtonTitle() {
         setTitle(textEditField.getText());
         setGraphic(null);
         updateTextWithCounter();

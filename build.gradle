@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'com.gzs'
-version '1.0-SNAPSHOT'
+version '1'
 
 repositories {
     mavenCentral()
@@ -49,6 +49,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    include 'module-info.test'
 }
 
 jlink {
